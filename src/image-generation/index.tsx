@@ -10,16 +10,13 @@ const ImageFactory: React.FC = () => {
   const [working, toggleWorking] = useState(false)
   const [title, setTitle] = useState("");
   const [generatedPrompts, setGeneratedPrompts] = useState<any>([]);
-  const [images, changeImages] = useState<any>([
-    {image: image01, prompt: "a portrait of a sad clown"}, 
-    {image: image02, prompt: "a portrait of a happy puppy"}, 
-    {image: image03, prompt: "an anime-style goldfish"}]);
+  const [images, changeImages] = useState<any>([]);
   const [activeIndex, setActiveIndex] = useState(0); // State to track the active carousel index
 
-  const addImage = async (prompt: any) => {
+  const addImage = async (prompt: any, question: any) => {
     toggleWorking(true);
     const newURL = await generateImage(prompt);
-    changeImages([...images, {image: newURL, prompt:prompt}]);
+    changeImages([...images, {image: newURL, prompt:prompt, question: question}]);
     setPrompt("");
     setActiveIndex(images.length);
     toggleWorking(false);
@@ -52,7 +49,6 @@ const ImageFactory: React.FC = () => {
     <div>
       <div className="d-flex justify-content-center bg-primary text-white">
         <h1>ZTV Image Factory</h1>
-        <h2>KEY:{process.env.REACT_APP_SECRET_KEY}</h2>
       </div>
 
       {images.length >= 1 && (
@@ -64,6 +60,8 @@ const ImageFactory: React.FC = () => {
               </Carousel.Item>
             ))}
           </Carousel>
+          <h2>{images[activeIndex].question[0]}</h2>
+          <h2>{images[activeIndex].question[2]}</h2>
           <button onClick={removeImage} disabled={working} className="btn btn-danger mt-3">Remove Current Image</button>
           <button onClick={regenerateImage} disabled={working} className="btn btn-success mt-3">Regenerate Current Image</button>
         </div>
@@ -78,7 +76,7 @@ const ImageFactory: React.FC = () => {
             onChange={(e) => setPrompt(e.target.value)}
             placeholder="If there's a specific prompt you want to try to generate, type it here."
           ></textarea>
-          <button onClick={() => addImage(prompt)} disabled={working} className="btn btn-outline-secondary" type="button">Submit</button>
+          <button onClick={() => addImage(prompt, "No Question Provided")} disabled={working} className="btn btn-outline-secondary" type="button">Submit</button>
         </div>
       </div>
 
@@ -104,8 +102,8 @@ const ImageFactory: React.FC = () => {
                 <li className="list-group-item" key={prompt.title}>
                   <div className="input-group">
                     <button onClick={() => setPrompt(prompt.description + " " + prompt.lens)} className="btn btn-outline-primary" disabled={working} type="button">Edit</button>
-                    <span className="form-control">{prompt.description + " " + prompt.lens  }</span>
-                    <button onClick={() => addImage(prompt.description + " " + prompt.lens)} className="btn btn-outline-secondary" disabled={working} type="button">Submit</button>
+                    <span className="form-control">{prompt.description}</span>
+                    <button onClick={() => addImage(prompt.description + " " + prompt.lens, prompt.question)} className="btn btn-outline-secondary" disabled={working} type="button">Submit</button>
                   </div>
                 </li>
               );
